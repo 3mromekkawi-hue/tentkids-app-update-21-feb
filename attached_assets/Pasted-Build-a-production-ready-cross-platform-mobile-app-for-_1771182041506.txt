@@ -1,0 +1,173 @@
+Build a production-ready cross-platform mobile app for children called "Tent-Kids" using React Native (Expo) and Firebase backend.
+
+Also build a separate secure Admin Web Dashboard using React (Vite or Next.js) connected to the same Firebase project.
+
+==================================================
+CORE THEME
+==================================================
+Theme:
+Sweet Dessert World mixed with Cozy Kids Tent Atmosphere.
+
+Primary Language: Arabic (RTL)
+Secondary Language: English
+Language selection at first launch.
+All UI, notifications, and content must dynamically switch based on selected language.
+Store bilingual fields in database.
+
+==================================================
+SPLASH EXPERIENCE
+==================================================
+- Closed tent animation at night
+- Tent opens with glowing light
+- Candy/dessert floating decorations
+- App logo appears
+- Smooth transition to Home Screen
+
+==================================================
+BOTTOM TAB NAVIGATION
+==================================================
+1) 🍪 Cookies (Community & News Feed)
+- Safe posts
+- Comments & Mentions (@nickname)
+- Emoji reactions
+- Word filtering
+- Block links/phone numbers
+- Report system
+- No private messaging or media uploads
+- Admin moderation
+
+2) 🍜 Noodles (Videos)
+- Admin-uploaded child-safe videos only
+- No external YouTube links
+- Full-screen player
+- Like & Save for later
+- Bilingual titles/descriptions
+
+3) ✌ Friends Hub
+- Peace hand icon (fun design)
+- Add/accept/reject friend requests
+- Avatar + nickname only
+- No chat, no personal data
+- Parent Gate triggered when adding a friend
+
+4) ➕ Add Button
+- Create Cookie post
+- Suggest story/video
+- Submissions go to moderation queue
+
+5) 🍿 Popcorn (Notifications)
+- Animated popcorn bucket icon
+- Badge counter if unread
+- Shake animation
+- Play playful notification sound
+- List notifications from Firestore
+- Mark as read
+- Language-based notifications
+
+==================================================
+MYTENT (Child Profile)
+==================================================
+- First time registration: choose Avatar (animals/candy/Popcorn/Noodles)
+- Premium avatars: glowing/spooky/animated (unlock with subscription)
+- Enter Nickname
+- Choose tent background color
+- Post-registration: change Avatar, change tent color, write Status, see achievements & friend count
+- Premium: unlock avatar customization (color, accessories, glow, minor animation)
+
+==================================================
+USAGE TIMER
+==================================================
+- Track session time
+- After 30 minutes: show soft popup suggesting a break
+- Animated friendly message
+- Reset after inactivity
+
+==================================================
+PARENT GATE
+==================================================
+- Random math question
+- Two triggers:
+   1) Accessing Settings / Subscription / Account deletion
+   2) Adding a friend in Friends Hub
+- 3 attempts max
+- 5-minute lock on failure
+- Animated success/failure feedback
+
+==================================================
+PARENT FEEDBACK
+==================================================
+- 1–5 star rating (animated)
+- Feedback questions
+- Suggestion box
+- Stored in Firestore
+- Visible in Admin Dashboard
+
+==================================================
+NOTIFICATION SOUND
+==================================================
+- Custom child-friendly sound
+- Respect selected language
+- Enable/disable option
+
+==================================================
+MONETIZATION
+==================================================
+Phase 1: Free, no ads  
+Phase 2: Low-cost subscription (Premium avatars, avatar customization, exclusive stories/videos)  
+Phase 3: Safe child-compliant ads (educational only, admin-controlled, no behavioral tracking)
+
+==================================================
+ADMIN DASHBOARD
+==================================================
+Secure login: Email + Password, role-based access
+
+Dashboard sections:
+1) Overview (users, posts, videos, notifications, ratings)
+2) Manage Cookies posts (approve/delete, moderate comments)
+3) Manage Noodles videos (upload/edit/delete, bilingual content)
+4) Friends Hub control
+5) Popcorn Notifications manager (create, select target, send, preview sound)
+6) Parent Feedback viewer
+7) Subscription management
+8) Premium avatar management
+9) Ads management
+
+==================================================
+ANIMATIONS
+==================================================
+- Splash tent opening
+- Button bounce
+- Tab transitions
+- Popcorn shake
+- Star sparkle rating
+- Confetti for achievements
+- Floating candy decorations
+- Smooth micro-interactions
+
+==================================================
+SECURITY
+==================================================
+- Role-based Firestore rules
+- Admin role stored in user document
+- Input validation
+- Sanitize comments
+- Block links/phone numbers
+- Protect admin routes
+- No public write to sensitive collections
+
+==================================================
+PROJECT STRUCTURE
+==================================================
+Root:
+- /mobile-app
+- /admin-dashboard
+Shared Firebase backend
+
+==================================================
+DELIVERABLE
+==================================================
+- Folder structure
+- Firestore schema example
+- Security rules
+- Firebase setup instructions
+- Deployment instructions

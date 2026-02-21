@@ -1,0 +1,203 @@
+Build a fully functional child-safe social application inspired by Facebook but designed ONLY for children.
+The application must include:
+• Magical tent theme
+• Glassmorphism UI
+• Colorful gradients
+• Heavy but smooth animations
+• Parent supervision system
+• Admin web dashboard (separate from app)
+• Legal compliance layer
+• Premium subscription model
+Supported languages ONLY:
+Arabic (Egypt) – RTL
+English – LTR
+🎬 SPLASH SCREEN
+On launch:
+• Animated tent slowly opening
+• Warm glowing lights
+• Cozy magical atmosphere
+• Smooth animation
+• Soft playful sound
+Then navigate to Language Selection.
+🌍 LANGUAGE SELECTION
+User must choose:
+• العربية (مصر)
+• English
+Language controls entire app including:
+UI, notifications, legal text, Parent Gate, timer messages, subscription text, errors.
+Arabic must be RTL layout.
+👤 FIRST-TIME USER SETUP
+Before entering the app:
+Step 1 – Choose Avatar Category:
+• 🐻 Animals
+• 🍭 Sweets
+Step 2 – Choose Specific Avatar
+Step 3 – Choose Favorite Tent Color
+• Tent main color
+• Background glow
+Save selections to user profile.
+🏕 MY TENT (PROFILE TAB)
+Contains:
+• Avatar display
+• Nickname
+• Tent color
+• Background theme
+• Today’s Status (emoji supported)
+• Sign Out icon
+User can modify anytime:
+• Nickname
+• Avatar
+• Tent color
+• Background
+• Emoji status
+Changes apply instantly.
+🔄 SIGN OUT & RE-REGISTER
+• Sign Out button inside My Tent
+• Redirect to Login/Register screen
+• Allow new registration
+• Secure session handling
+🏠 MAIN NAVIGATION (BOTTOM TABS)
+Design:
+• Glassmorphism
+• Colorful
+• Animated background
+IMPORTANT GLOBAL ANIMATION RULE:
+When ANY tab/window/screen opens:
+🎉 Popcorn-style sweets must fall from top to bottom.
+Animation must be applied to:
+• Cookies
+• Nodles
+• Friends Hub
+• Notifications
+• My Tent
+• Create Post window
+• Any modal window
+Each sweet should drop smoothly from top and fade out.
+🍪 COOKIES TAB (HOME FEED – Facebook Style for Kids)
+Must include:
+• Stories section (Add Story bubble)
+• Posts feed
+• Image posts
+• Real dummy playable videos (linked to real test video URLs)
+• Emoji reactions only
+• Fixed predefined safe comments
+• No free typing
+🎥 NODLES TAB (VIDEOS)
+• Real dummy videos playable
+• Emoji reactions only
+• Curated safe content
+👥 FRIENDS HUB
+• Contacts list
+• Add friend button
+• Requires Parent Gate
+➕ CENTER TAB (+)
+• Large
+• Colored
+• Glowing
+• Centered
+Opens:
+• Create Post
+• Add Story
+• Upload Image
+• Upload Video
+All content filtered.
+🍿 POPCORN TAB (NOTIFICATIONS)
+• Notification list
+• Apply popcorn falling animation
+💎 PREMIUM FEATURES
+Unlocks:
+• Exclusive avatars
+• Scary avatars
+• Advanced avatar customization
+• More colors
+• Special themes
+⏳ HEALTHY USAGE TIMER
+After 30 minutes:
+Arabic:
+لقد قضيتِ 30 دقيقة داخل الخيمة 🏕
+هل تحبين أن تأخذي استراحة قصيرة ثم تعودي مرة أخرى؟ 💛
+English:
+You’ve been in your tent for 30 minutes 🏕
+How about taking a short break and come back later? 💛
+🔐 PARENT GATE
+Required for:
+• Add friend
+• Subscription
+• Sensitive edits
+Options:
+• Math equation (+ or *)
+• Word confirmation
+• Optional email verification
+📜 TERMS & CONDITIONS WINDOW (MANDATORY BEFORE FIRST ENTRY)
+Before user enters the app:
+Show “View Terms & Privacy Policy” link
+Open full readable document page
+Require scroll to bottom
+Checkbox:
+“I confirm I have read and agree”
+Continue button activates only after checkbox
+📑 FULL LEGAL TEXT (INTEGRATED)
+Owner:
+Amr Ahmed Saleh
+Email: 3mromekkawi@gmail.com
+ARABIC SECTION:
+هذا التطبيق مملوك بالكامل إلى:
+عمرو أحمد صالح
+البريد الإلكتروني: 3mromekkawi@gmail.com
+جميع حقوق الملكية الفكرية المتعلقة باسم التطبيق، الشعار، الفكرة، التصميم، المحتوى، والهوية البصرية محفوظة بالكامل.
+لا يحق لأي طرف نسخ أو تقليد أو إعادة إنتاج أو توزيع أو استغلال أي جزء من التطبيق أو فكرته دون إذن كتابي صريح.
+يحتفظ المالك بالحق الكامل في اتخاذ كافة الإجراءات القانونية في حال ثبوت أي انتهاك.
+ENGLISH SECTION:
+This application is fully owned by:
+Amr Ahmed Saleh
+Email: 3mromekkawi@gmail.com
+All intellectual property rights related to the application name, logo, concept, design, content, and visual identity are fully reserved.
+No party may copy, reproduce, imitate, distribute, or exploit any part of the application without prior written permission.
+The owner reserves the full right to take legal action in case of infringement.
+🛡 SAFETY RULES
+• No private messaging
+• No open text chat
+• Emoji reactions only
+• Fixed comments only
+• Parent approval required
+• Admin moderation enabled
+👨‍💻 ADMIN CONTROL PANEL (WEB DASHBOARD – NOT IN APP)
+Admin must control system via secure web URL.
+Capabilities:
+• User management
+• Content moderation
+• Video management
+• Avatar management
+• Theme control
+• Premium control
+• Usage analytics
+• Reports
+Security:
+• JWT authentication
+• Role-based access
+• Secure backend
+• No admin endpoints exposed in mobile app
+🧱 TECH STACK (REPLIT / NOWA 3 READY)
+Frontend:
+Flutter or React Native
+Backend:
+Node.js + Express OR Firebase/Supabase
+Database:
+Users
+Posts
+Stories
+Videos
+Avatars
+Reactions
+Subscriptions
+Admin logs
+Admin Panel:
+Separate React web dashboard deployment
+🎯 FINAL VISION
+A fully animated, magical tent-themed, child-safe social platform.
+Facebook-like structure
+Strict parental control
+Premium model
+Legal protection
+Admin web-managed
+Popcorn falling animation across ALL screens
