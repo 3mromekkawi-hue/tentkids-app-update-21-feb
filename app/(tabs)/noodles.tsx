@@ -15,6 +15,8 @@ const REACTIONS = ['heart', 'star', 'thumb-up', 'emoticon-happy', 'fire'];
 function VideoCard({ video }: { video: VideoItem }) {
   const { language, isRTL, profile, reactToVideo } = useApp();
   const [showReactions, setShowReactions] = useState(false);
+  const videoRef = React.useRef<any>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const title = language === 'ar' ? video.titleAr : video.titleEn;
 
   const handleReaction = (emoji: string) => {
@@ -28,13 +30,51 @@ function VideoCard({ video }: { video: VideoItem }) {
   return (
     <View style={styles.videoCard}>
       <View style={[styles.videoThumb, { backgroundColor: video.thumbnailColor }]}>
-        <Video
-          source={{ uri: video.videoUrl }}
-          style={styles.videoPlayer}
-          useNativeControls
-          resizeMode={ResizeMode.COVER}
-          isLooping={false}
-        />
+        <Pressable
+          style={{ width: '100%', height: '100%' }}
+          onPress={async () => {
+            try {
+              if (!videoRef.current) return;
+              // Ensure unmuted and audible before playing
+              try {
+                await videoRef.current.setIsMutedAsync(false);
+                await videoRef.current.setVolumeAsync(1.0);
+              } catch (e) {
+                // not critical, keep trying to play
+              }
+              if (isPlaying) {
+                await videoRef.current.pauseAsync();
+                setIsPlaying(false);
+              } else {
+                await videoRef.current.playAsync();
+                setIsPlaying(true);
+              }
+            } catch (e) {
+              console.warn('Video play/pause error', e);
+            }
+          }}
+        >
+          <Video
+            ref={videoRef}
+            source={{ uri: video.videoUrl }}
+            style={styles.videoPlayer}
+            useNativeControls
+            resizeMode={ResizeMode.COVER}
+            isLooping={false}
+            isMuted={false}
+            onError={(e) => console.warn('Video load error', e)}
+            onLoad={async () => {
+              try {
+                if (videoRef.current) {
+                  await videoRef.current.setIsMutedAsync(false);
+                  await videoRef.current.setVolumeAsync(1.0);
+                }
+              } catch (e) {
+                console.warn('Video onLoad audio init failed', e);
+              }
+            }}
+          />
+        </Pressable>
       </View>
 
       <View style={styles.videoInfo}>

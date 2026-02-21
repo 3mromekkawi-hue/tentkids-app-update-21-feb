@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, ReactNo
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import translations, { Language } from '@/constants/translations';
 import * as Crypto from 'expo-crypto';
+import { Audio } from 'expo-av';
 
 export interface UserProfile {
   id: string;
@@ -192,7 +193,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sessionStartTime, setSessionStartTime] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: false,
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          playThroughEarpieceAndroid: false,
+        });
+          await Audio.setIsEnabledAsync(true);
+      } catch (e) {
+        console.warn('Failed to set audio mode', e);
+      }
+      await loadData();
+    })();
+  }, []);
 
   const loadData = async () => {
     try {

@@ -9,7 +9,7 @@ export default function LoginScreen({ navigation }: any) {
 
   const handleLogin = async () => {
     try {
-      await signIn(parentEmail, password);
+      await signIn(parentEmail.trim(), password);
       // Navigation logic after login can be handled in AuthContext or parent navigator
     } catch (e: any) {
       Alert.alert('Login Error', e.message || 'Failed to login');

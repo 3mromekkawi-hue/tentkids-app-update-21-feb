@@ -92,7 +92,6 @@ export default function PopcornScreen() {
     </LinearGradient>
   );
 }
-}
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

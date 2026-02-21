@@ -63,14 +63,49 @@ export function PostCard({ post }: PostCardProps) {
 
       {post.videoUrl && (
         <View style={styles.videoContainer}>
-          <Video
-            ref={videoRef}
-            source={{ uri: post.videoUrl }}
-            style={styles.video}
-            useNativeControls
-            resizeMode={ResizeMode.COVER}
-            isLooping={false}
-          />
+          <Pressable
+            style={{ width: '100%', height: '100%' }}
+            onPress={async () => {
+              try {
+                if (!videoRef.current) return;
+                try {
+                  await videoRef.current.setIsMutedAsync(false);
+                  await videoRef.current.setVolumeAsync(1.0);
+                } catch (e) {
+                  // ignore
+                }
+                const status = await videoRef.current.getStatusAsync();
+                if (status.isPlaying) {
+                  await videoRef.current.pauseAsync();
+                } else {
+                  await videoRef.current.playAsync();
+                }
+              } catch (e) {
+                console.warn('Post video play/pause error', e);
+              }
+            }}
+          >
+            <Video
+              ref={videoRef}
+              source={{ uri: post.videoUrl }}
+              style={styles.video}
+              useNativeControls
+              resizeMode={ResizeMode.COVER}
+              isLooping={false}
+              isMuted={false}
+              onError={(e) => console.warn('Post video load error', e)}
+              onLoad={async () => {
+                try {
+                  if (videoRef.current) {
+                    await videoRef.current.setIsMutedAsync(false);
+                    await videoRef.current.setVolumeAsync(1.0);
+                  }
+                } catch (e) {
+                  console.warn('Post video onLoad audio init failed', e);
+                }
+              }}
+            />
+          </Pressable>
         </View>
       )}
 

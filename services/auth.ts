@@ -4,8 +4,9 @@ export async function signUp(parentEmail: string, password: string, termsAccepte
   if (!termsAccepted) {
     throw new Error('Terms must be accepted to sign up.');
   }
+  const email = parentEmail.trim().toLowerCase();
   const { data, error } = await supabase.auth.signUp({
-    email: parentEmail,
+    email,
     password,
   });
   if (error || !data.user) {
@@ -30,8 +31,9 @@ export async function signUp(parentEmail: string, password: string, termsAccepte
 }
 
 export async function signIn(parentEmail: string, password: string) {
+  const email = parentEmail.trim().toLowerCase();
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: parentEmail,
+    email,
     password,
   });
   if (error || !data.user) {

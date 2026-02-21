@@ -1,4 +1,17 @@
 
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Pressable, ScrollView, Platform } from 'react-native';
+import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Colors from '@/constants/colors';
+import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
+import { Avatar } from '@/components/Avatar';
+import { FallingSweets } from '@/components/FallingSweets';
+import { PostCard } from '@/components/PostCard';
+
 function StoryBubble({ avatarId, name, color, isAdd, onPress }: { avatarId?: string; name: string; color?: string; isAdd?: boolean; onPress?: () => void }) {
   return (
     <Pressable style={styles.storyBubble} onPress={onPress}>

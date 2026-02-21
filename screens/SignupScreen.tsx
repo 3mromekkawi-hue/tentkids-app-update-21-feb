@@ -16,7 +16,7 @@ export default function SignupScreen() {
 
   const handleSignUp = async () => {
     try {
-      const user = await signUp(parentEmail, password, termsAccepted);
+      const user = await signUp(parentEmail.trim(), password, termsAccepted);
       if (!user || !user.id) throw new Error('Signup failed');
       // Save onboarding data after signup
       await setProfile({
@@ -45,7 +45,7 @@ export default function SignupScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
         value={parentEmail}
-        onChangeText={setParentEmail}
+          onChangeText={(t) => setParentEmail(t)}
       />
       <TextInput
         style={styles.input}
