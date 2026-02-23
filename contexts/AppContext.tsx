@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useMemo, ReactNo
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import translations, { Language } from '@/constants/translations';
 import * as Crypto from 'expo-crypto';
-import { Audio } from 'expo-av';
+
+import { supabase } from '@/lib/supabase';
 
 export interface UserProfile {
   id: string;
@@ -195,21 +196,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: false,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: false,
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-          playThroughEarpieceAndroid: false,
-        });
-          await Audio.setIsEnabledAsync(true);
-      } catch (e) {
-        console.warn('Failed to set audio mode', e);
-      }
       await loadData();
+      await fetchVideosFromStorage();
     })();
   }, []);
 
@@ -233,6 +221,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (vid) setVideos(JSON.parse(vid));
     } catch (e) { console.error('Load error', e); }
     finally { setIsLoading(false); }
+  };
+
+  const fetchVideosFromStorage = async () => {
+    const { data, error } = await supabase
+      .storage
+      .from('videos')
+      .list('', { limit: 100 });
+
+    console.log('STORAGE DATA RAW:', data);
+    console.log('STORAGE ERROR RAW:', error);
+
+    if (error) return;
+
+    const files = data || [];
+    console.log('FILES COUNT:', files.length);
+
+    const mapped = files
+      .filter(file => file.name.toLowerCase().endsWith('.mp4'))
+      .map(file => {
+        const { data: publicUrl } = supabase
+          .storage
+          .from('videos')
+          .getPublicUrl(file.name);
+
+        return {
+          id: file.name,
+          titleAr: 'فيديو جديد',
+          titleEn: 'New Video',
+          thumbnailColor: '#FFB74D',
+          iconName: 'video',
+          videoUrl: publicUrl.publicUrl,
+          reactions: {},
+          duration: '00:00',
+          createdAt: Date.now(),
+        };
+      });
+
+    console.log('MAPPED VIDEOS:', mapped);
+    console.log('MAPPED COUNT:', mapped.length);
+
+    setVideos(mapped);
   };
 
   const save = useCallback(async (key: string, val: any) => {

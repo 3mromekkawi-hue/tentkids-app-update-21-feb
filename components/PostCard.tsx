@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform, Alert, Dimensions } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Video, ResizeMode } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withSequence } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -19,7 +19,7 @@ export function PostCard({ post }: PostCardProps) {
   const { t, isRTL, profile, reactToPost, addSafeComment, reportPost } = useApp();
   const [showReactions, setShowReactions] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const videoRef = useRef<any>(null);
+  const player = post.videoUrl ? useVideoPlayer(post.videoUrl) : null;
 
   const bounceScale = useSharedValue(1);
   const bounceAnim = useAnimatedStyle(() => ({ transform: [{ scale: bounceScale.value }] }));
@@ -63,48 +63,16 @@ export function PostCard({ post }: PostCardProps) {
 
       {post.videoUrl && (
         <View style={styles.videoContainer}>
-          <Pressable
-            style={{ width: '100%', height: '100%' }}
-            onPress={async () => {
-              try {
-                if (!videoRef.current) return;
-                try {
-                  await videoRef.current.setIsMutedAsync(false);
-                  await videoRef.current.setVolumeAsync(1.0);
-                } catch (e) {
-                  // ignore
-                }
-                const status = await videoRef.current.getStatusAsync();
-                if (status.isPlaying) {
-                  await videoRef.current.pauseAsync();
-                } else {
-                  await videoRef.current.playAsync();
-                }
-              } catch (e) {
-                console.warn('Post video play/pause error', e);
-              }
-            }}
-          >
-            <Video
-              ref={videoRef}
-              source={{ uri: post.videoUrl }}
-              style={styles.video}
-              useNativeControls
-              resizeMode={ResizeMode.COVER}
-              isLooping={false}
-              isMuted={false}
-              onError={(e) => console.warn('Post video load error', e)}
-              onLoad={async () => {
-                try {
-                  if (videoRef.current) {
-                    await videoRef.current.setIsMutedAsync(false);
-                    await videoRef.current.setVolumeAsync(1.0);
-                  }
-                } catch (e) {
-                  console.warn('Post video onLoad audio init failed', e);
-                }
-              }}
-            />
+          <Pressable style={{ width: '100%', height: '100%' }} onPress={() => {}}>
+            {player ? (
+              <VideoView
+                player={player}
+                style={styles.video}
+                allowsFullscreen
+                allowsPictureInPicture
+                contentFit="cover"
+              />
+            ) : null}
           </Pressable>
         </View>
       )}

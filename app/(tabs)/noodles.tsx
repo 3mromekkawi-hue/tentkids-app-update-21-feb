@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Pressable, Platform } from 'react-nat
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Video, ResizeMode } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useApp, VideoItem } from '@/contexts/AppContext';
@@ -15,9 +15,27 @@ const REACTIONS = ['heart', 'star', 'thumb-up', 'emoticon-happy', 'fire'];
 function VideoCard({ video }: { video: VideoItem }) {
   const { language, isRTL, profile, reactToVideo } = useApp();
   const [showReactions, setShowReactions] = useState(false);
-  const videoRef = React.useRef<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const title = language === 'ar' ? video.titleAr : video.titleEn;
+  console.log('LOADING VIDEO:', video.videoUrl);
+  const player = useVideoPlayer(video.videoUrl);
+
+  React.useEffect(() => {
+    if (!player) return;
+    try {
+      const s1 = player.addListener('statusChange', (status: any) => {
+        console.log('VIDEO STATUS:', status);
+      });
+      const s2 = player.addListener('error', (error: any) => {
+        console.log('VIDEO ERROR:', error);
+      });
+      return () => {
+        try { s1?.remove?.(); } catch (e) {}
+        try { s2?.remove?.(); } catch (e) {}
+      };
+    } catch (e) {
+      // ignore listener attach errors
+    }
+  }, [player]);
 
   const handleReaction = (emoji: string) => {
     if (Platform.OS !== 'web') {
@@ -30,49 +48,13 @@ function VideoCard({ video }: { video: VideoItem }) {
   return (
     <View style={styles.videoCard}>
       <View style={[styles.videoThumb, { backgroundColor: video.thumbnailColor }]}>
-        <Pressable
-          style={{ width: '100%', height: '100%' }}
-          onPress={async () => {
-            try {
-              if (!videoRef.current) return;
-              // Ensure unmuted and audible before playing
-              try {
-                await videoRef.current.setIsMutedAsync(false);
-                await videoRef.current.setVolumeAsync(1.0);
-              } catch (e) {
-                // not critical, keep trying to play
-              }
-              if (isPlaying) {
-                await videoRef.current.pauseAsync();
-                setIsPlaying(false);
-              } else {
-                await videoRef.current.playAsync();
-                setIsPlaying(true);
-              }
-            } catch (e) {
-              console.warn('Video play/pause error', e);
-            }
-          }}
-        >
-          <Video
-            ref={videoRef}
-            source={{ uri: video.videoUrl }}
+        <Pressable style={{ width: '100%', height: '100%' }} onPress={() => {}}>
+          <VideoView
+            player={player}
             style={styles.videoPlayer}
-            useNativeControls
-            resizeMode={ResizeMode.COVER}
-            isLooping={false}
-            isMuted={false}
-            onError={(e) => console.warn('Video load error', e)}
-            onLoad={async () => {
-              try {
-                if (videoRef.current) {
-                  await videoRef.current.setIsMutedAsync(false);
-                  await videoRef.current.setVolumeAsync(1.0);
-                }
-              } catch (e) {
-                console.warn('Video onLoad audio init failed', e);
-              }
-            }}
+            allowsFullscreen
+            allowsPictureInPicture
+            contentFit="cover"
           />
         </Pressable>
       </View>
