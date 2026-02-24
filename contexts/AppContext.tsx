@@ -191,6 +191,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [friends, setFriends] = useState<FriendRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>(sampleVideos);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
 
@@ -420,13 +421,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     friends, sendFriendRequest, acceptFriend, rejectFriend,
     notifications, markNotificationRead, unreadCount,
     videos, reactToVideo,
+    activeVideoId, setActiveVideoId,
     sessionStartTime, resetSessionTime, isLoading, signOut,
   }), [language, setLanguage, t, isRTL, profile, setProfile, updateProfile,
     isOnboarded, setIsOnboarded, hasAgreedTerms, setHasAgreedTerms,
     posts, addPost, reactToPost, addSafeComment, reportPost,
     stories, addStory, friends, sendFriendRequest, acceptFriend, rejectFriend,
     notifications, markNotificationRead, unreadCount, videos, reactToVideo,
-    sessionStartTime, resetSessionTime, isLoading, signOut]);
+    activeVideoId, setActiveVideoId, sessionStartTime, resetSessionTime, isLoading, signOut]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

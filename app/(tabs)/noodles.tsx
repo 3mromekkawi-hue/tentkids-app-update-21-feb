@@ -1,122 +1,172 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  Pressable,
+  Animated,
+  Share,
+} from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
-import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useApp, VideoItem } from '@/contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { FallingSweets } from '@/components/FallingSweets';
 
-const REACTIONS = ['heart', 'star', 'thumb-up', 'emoticon-happy', 'fire'];
+const { height, width } = Dimensions.get('window');
 
-function VideoCard({ video }: { video: VideoItem }) {
-  const { language, isRTL, profile, reactToVideo } = useApp();
-  const [showReactions, setShowReactions] = useState(false);
-  const title = language === 'ar' ? video.titleAr : video.titleEn;
-  console.log('LOADING VIDEO:', video.videoUrl);
+const REACTIONS = [
+  { key: 'like', icon: 'thumb-up' },
+  { key: 'love', icon: 'heart' },
+  { key: 'haha', icon: 'emoticon-happy' },
+  { key: 'wow', icon: 'emoticon-surprised' },
+  { key: 'sad', icon: 'emoticon-cry' },
+  { key: 'fire', icon: 'fire' },
+];
+
+function VideoCard({
+  video,
+  isActive,
+}: {
+  video: VideoItem;
+  isActive: boolean;
+}) {
+  const { reactToVideo } = useApp();
   const player = useVideoPlayer(video.videoUrl);
+  const [showReactions, setShowReactions] = useState(false);
+  const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
+  const [floatingReaction, setFloatingReaction] = useState<string | null>(null);
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!player) return;
-    try {
-      const s1 = player.addListener('statusChange', (status: any) => {
-        console.log('VIDEO STATUS:', status);
-      });
-      const s2 = player.addListener('error', (error: any) => {
-        console.log('VIDEO ERROR:', error);
-      });
-      return () => {
-        try { s1?.remove?.(); } catch (e) {}
-        try { s2?.remove?.(); } catch (e) {}
-      };
-    } catch (e) {
-      // ignore listener attach errors
-    }
-  }, [player]);
 
-  const handleReaction = (emoji: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    player.loop = true;
+
+    if (isActive) {
+      player.play();
+    } else {
+      player.pause();
     }
-    reactToVideo(video.id, emoji);
+  }, [isActive, player]);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: video.videoUrl,
+        url: video.videoUrl,
+      });
+    } catch (error) {
+      console.log('Share error:', error);
+    }
+  };
+
+  const handleReaction = (reaction: string) => {
+    reactToVideo(video.id, reaction);
+    setSelectedReaction(reaction);
     setShowReactions(false);
+    setFloatingReaction(reaction);
+
+    floatAnim.setValue(0);
+
+    Animated.timing(floatAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start(() => {
+      setFloatingReaction(null);
+    });
   };
 
   return (
-    <View style={styles.videoCard}>
-      <View style={[styles.videoThumb, { backgroundColor: video.thumbnailColor }]}>
-        <Pressable style={{ width: '100%', height: '100%' }} onPress={() => {}}>
-          <VideoView
-            player={player}
-            style={styles.videoPlayer}
-            allowsFullscreen
-            allowsPictureInPicture
-            contentFit="cover"
+    <View style={styles.container}>
+      <VideoView
+        player={player}
+        style={styles.video}
+        contentFit="cover"
+        controls={false}
+      />
+
+      {/* Floating Reaction Animation */}
+      {floatingReaction && (
+        <Animated.View
+          style={[
+            styles.floatingReaction,
+            {
+              opacity: floatAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0],
+              }),
+              transform: [
+                {
+                  translateY: floatAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -120],
+                  }),
+                },
+                {
+                  scale: floatAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.5],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name={
+              REACTIONS.find(r => r.key === floatingReaction)?.icon as any
+            }
+            size={60}
+            color="white"
+          />
+        </Animated.View>
+      )}
+
+      {/* Actions */}
+      <View style={styles.actionsContainer}>
+        <Pressable
+          style={styles.actionBtn}
+          onPress={() => handleReaction('like')}
+          onLongPress={() => setShowReactions(true)}
+        >
+          <MaterialCommunityIcons
+            name={
+              selectedReaction
+                ? REACTIONS.find(r => r.key === selectedReaction)?.icon
+                : 'thumb-up'
+            }
+            size={30}
+            color="white"
+          />
+          <Text style={styles.actionText}>
+            {video.reactions?.length || 0}
+          </Text>
+        </Pressable>
+
+        <Pressable style={styles.actionBtn} onPress={handleShare}>
+          <MaterialCommunityIcons
+            name="share-variant"
+            size={28}
+            color="white"
           />
         </Pressable>
-      </View>
-
-      <View style={styles.videoInfo}>
-        <Text style={[styles.videoTitle, isRTL && styles.rtl]} numberOfLines={2}>
-          {title}
-        </Text>
-
-        <Text style={styles.videoDuration}>{video.duration}</Text>
-
-        {Object.keys(video.reactions).length > 0 && (
-          <View style={[styles.reactionsRow, isRTL && { flexDirection: 'row-reverse' }]}>
-            {Object.entries(video.reactions).map(([emoji, users]) => (
-              <Pressable
-                key={emoji}
-                style={[
-                  styles.reactionBadge,
-                  profile && users.includes(profile.id) && styles.reactionActive,
-                ]}
-                onPress={() => handleReaction(emoji)}
-              >
-                <MaterialCommunityIcons
-                  name={emoji as any}
-                  size={14}
-                  color={
-                    profile && users.includes(profile.id)
-                      ? Colors.primary
-                      : Colors.textSecondary
-                  }
-                />
-                <Text style={styles.reactionCount}>{users.length}</Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
-
-        <View style={[styles.actionsRow, isRTL && { flexDirection: 'row-reverse' }]}>
-          <Pressable
-            style={styles.emojiBtn}
-            onPress={() => setShowReactions(!showReactions)}
-          >
-            <MaterialCommunityIcons
-              name="emoticon-happy-outline"
-              size={22}
-              color={Colors.textSecondary}
-            />
-          </Pressable>
-        </View>
 
         {showReactions && (
-          <View style={styles.reactionPicker}>
-            {REACTIONS.map((e) => (
+          <View style={styles.reactionsPopup}>
+            {REACTIONS.map(r => (
               <Pressable
-                key={e}
-                style={styles.reactionItem}
-                onPress={() => handleReaction(e)}
+                key={r.key}
+                onPress={() => handleReaction(r.key)}
               >
                 <MaterialCommunityIcons
-                  name={e as any}
-                  size={26}
-                  color={Colors.primary}
+                  name={r.icon as any}
+                  size={28}
+                  color="white"
+                  style={{ marginHorizontal: 6 }}
                 />
               </Pressable>
             ))}
@@ -128,129 +178,74 @@ function VideoCard({ video }: { video: VideoItem }) {
 }
 
 export default function NoodlesScreen() {
-  const { t, isRTL, videos } = useApp();
+  const { videos } = useApp();
   const { session } = useAuth();
-  const insets = useSafeAreaInsets();
-  const [showSweets, setShowSweets] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setShowSweets(false), 3500);
-    return () => clearTimeout(timer);
-  }, []);
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setActiveIndex(viewableItems[0].index ?? 0);
+    }
+  }).current;
 
-  if (!session) {
-    return (
-      <LinearGradient
-        colors={[Colors.background, '#E8F0FF', '#F0E4FF', Colors.background]}
-        style={styles.container}
-      >
-        <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons name="noodles" size={64} color={Colors.textMuted} />
-          <Text style={[styles.emptyTitle, isRTL && styles.rtl]}>
-            {t('loginToViewVideos')}
-          </Text>
-        </View>
-      </LinearGradient>
-    );
-  }
+  if (!session) return null;
 
   return (
-    <LinearGradient
-      colors={[Colors.background, '#E8F0FF', '#F0E4FF', Colors.background]}
-      style={styles.container}
-    >
-      {showSweets && <FallingSweets count={12} />}
-
-      <View
-        style={[
-          styles.header,
-          { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) + 8 },
-        ]}
-      >
-        <Text style={[styles.title, isRTL && styles.rtl]}>
-          {t('noodles')}
-        </Text>
-      </View>
-
-      <FlatList
-        data={videos}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <VideoCard video={item} />}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: 100 },
-          videos.length === 0 && styles.emptyList,
-        ]}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <MaterialCommunityIcons name="noodles" size={64} color={Colors.textMuted} />
-            <Text style={[styles.emptyTitle, isRTL && styles.rtl]}>
-              {t('noVideosYet')}
-            </Text>
-            <Text style={[styles.emptySub, isRTL && styles.rtl]}>
-              {t('videosComingSoon')}
-            </Text>
-          </View>
-        }
-        showsVerticalScrollIndicator={false}
-      />
-    </LinearGradient>
+    <FlatList
+      data={videos}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item, index }) => (
+        <VideoCard
+          video={item}
+          isActive={index === activeIndex}
+        />
+      )}
+      pagingEnabled
+      showsVerticalScrollIndicator={false}
+      onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={{ itemVisiblePercentThreshold: 80 }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 8 },
-  title: { fontSize: 24, fontWeight: '700', color: Colors.text },
-  rtl: { textAlign: 'right', writingDirection: 'rtl' },
-  listContent: { padding: 16 },
-  emptyList: { flexGrow: 1 },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  container: {
+    width: width,
+    height: height, // مهم جدًا عشان ميظهرش فيديو تاني
+    backgroundColor: 'black',
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  actionsContainer: {
+    position: 'absolute',
+    right: 15,
+    bottom: 120,
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 80,
+    zIndex: 10,
   },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: Colors.text },
-  emptySub: { fontSize: 14, color: Colors.textSecondary },
-  videoCard: {
-    backgroundColor: Colors.surfaceGlass,
-    borderRadius: 22,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  videoThumb: { height: 200 },
-  videoPlayer: { width: '100%', height: 200 },
-  videoInfo: { padding: 14, gap: 6 },
-  videoTitle: { fontSize: 16, fontWeight: '600', color: Colors.text },
-  videoDuration: { fontSize: 12, color: Colors.textMuted },
-  reactionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
-  reactionBadge: {
-    flexDirection: 'row',
+  actionBtn: {
+    marginBottom: 20,
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
   },
-  reactionActive: {
-    backgroundColor: 'rgba(255,107,138,0.12)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
+  actionText: {
+    color: 'white',
+    fontSize: 12,
+    marginTop: 5,
   },
-  reactionCount: { fontSize: 12, color: Colors.textSecondary },
-  actionsRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  emojiBtn: { padding: 4 },
-  reactionPicker: {
+  reactionsPopup: {
+    position: 'absolute',
+    bottom: 70,
+    right: 40,
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 14,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderRadius: 20,
-    padding: 10,
-    marginTop: 6,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    padding: 8,
+    borderRadius: 30,
   },
-  reactionItem: { padding: 4 },
+  floatingReaction: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '40%',
+  },
 });
